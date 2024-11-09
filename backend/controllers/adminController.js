@@ -70,5 +70,23 @@ const deleteUser = async(req,res) =>
     }
 }
 
+const updateUser = async(req,res) =>
+{
+    try {
+        const id = req.params.id;
+        const {name,email,phone} = req.body;
 
-module.exports = {getAgents,getUsers,getSingleAgent,deleteUser}
+        const isUser = await User.findById(id)
+        if(!isUser)
+            return res.status(404).json({error:'user not found'})
+
+        const updatedUser = await User.findByIdAndUpdate(id,{name,email,phone},{new:true})
+
+        return res.status(200).json({updatedUser,message:"user updated Successfully"})
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({error:"Internal Server Error"})
+    }
+}
+
+module.exports = {getAgents,getUsers,getSingleAgent,deleteUser,updateUser}
