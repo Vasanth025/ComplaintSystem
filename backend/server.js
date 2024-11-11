@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 const mongoose = require('mongoose')
+const cors = require("cors")
 const authRoutes = require("./routes/authRoutes.js")
 const adminRoutes = require("./routes/adminRoutes.js")
 const compRoutes = require("./routes/complaintRoutes.js")
@@ -13,6 +14,7 @@ dotenv.config()
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(cookieParser())
+app.use(cors())
 
 app.use("/api/auth",authRoutes)
 app.use("/api/admin",adminRoutes)
