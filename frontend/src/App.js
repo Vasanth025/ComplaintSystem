@@ -9,6 +9,8 @@ import AdminHome from './pages/admin/AdminHome.jsx';
 import AgentHome from './pages/agent/AgentHome.jsx';
 import './index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import ProfilePage from './pages/common/Profile.jsx';
+import AboutPage from './pages/common/About.jsx';
 
 function App() {
     const [user, setUser] = useState(null);
@@ -26,6 +28,8 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/signup" element={<Signup />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/about" element={<AboutPage />} />
                     <Route path="/complaint" element={<Complaint />} />
                     <Route path="/user-home" element={<UserHome />} />
                     <Route path="/admin-home" element={<AdminHome />} />

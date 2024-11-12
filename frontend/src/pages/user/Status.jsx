@@ -4,6 +4,7 @@ import Card from 'react-bootstrap/Card';
 import Alert from 'react-bootstrap/Alert';
 import { Button } from 'react-bootstrap';
 import Collapse from 'react-bootstrap/Collapse';
+import ChatWindow from '../common/ChatWindow';
 
 const Status = () => {
   const [toggle, setToggle] = useState({});
@@ -83,7 +84,7 @@ const Status = () => {
                     <div id={`collapse-${complaint._id}`}>
                       {/* Optional ChatWindow component, if required */}
                       {/* Uncomment and pass the necessary props if needed */}
-                      {/* <ChatWindow key={complaint.complaintId} complaintId={complaint._id} name={complaint.name} /> */}
+                      <ChatWindow key={complaint.complaintId} complaintId={complaint._id} name={complaint.name} />
                     </div>
                   </Collapse>
                 </Card.Body>

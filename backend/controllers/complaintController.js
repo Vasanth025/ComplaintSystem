@@ -26,20 +26,21 @@ const createComplaint = async(req,res) =>
     }
 }
 
-const getAllComplaints = async(req,res) =>
-{
-    try {
-        const complaints = await Complaint.find();
-        if(complaints.length == 0)
-            return res.json({error : "No Complaints Recorded"})
 
-        return res.status(200).json({complaints})
-    } catch (error) {
-        console.log(error)
-        return res.status(500).json({ error: "Internal Server error" });
-    }
-}
-
+const getAllComplaints = async (req, res) => {
+        try {
+          const complaints = await Complaint.find().select('_id userId name address city state pincode comment status'); // Add or ensure status field here
+          if (complaints.length === 0) {
+            return res.json({ error: "No Complaints Recorded" });
+          }
+      
+          return res.status(200).json({ complaints });
+        } catch (error) {
+          console.error(error);
+          return res.status(500).json({ error: "Internal Server error" });
+        }
+      };
+      
 const getUserComplaints = async(req,res) =>
 {
     try {
