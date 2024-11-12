@@ -1,70 +1,66 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
-import { useNavigate } from 'react-router-dom';
-import Table from 'react-bootstrap/Table';
-import Alert from 'react-bootstrap/Alert';
-import { Container } from 'react-bootstrap';
-import Collapse from 'react-bootstrap/Collapse';
-import Form from 'react-bootstrap/Form';
-// import Footer from '../common/FooterC';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import Card from 'react-bootstrap/Card';
+import { NavLink, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import Alert from 'react-bootstrap/Alert';
+import Collapse from 'react-bootstrap/Collapse';
+import ChatWindow from '../common/ChatWindow';
 
-const Agent = () => {
+const AgentHome = () => {
    const navigate = useNavigate();
-   const [ordinaryList, setOrdinaryList] = useState([]);
+   const [userName, setUserName] = useState('');
    const [toggle, setToggle] = useState({});
-   const [updateAgent, setUpdateAgent] = useState({
-      name: '',
-      email: '',
-      phone: '',
-   });
+   const [agentComplaintList, setAgentComplaintList] = useState([]);
 
-   const handleChange = (e) => {
-      setUpdateAgent({ ...updateAgent, [e.target.name]: e.target.value });
-   };
-
-   const handleSubmit = async (user_id) => {
-      if (updateAgent === "") {
-         alert("At least 1 field needs to be filled.");
-      } else {
-         window.confirm("Are you sure you want to update the agent?");
-         axios.put(`http://localhost:4000/api/admin/update-user/${user_id}`, updateAgent)
-            .then((res) => {
-               alert(`Agent updated successfully`);
-               JSON.stringify(res.data);
-            })
-            .catch((err) => {
-               console.log(err);
-            });
+   // Fetch complaints assigned to the agent
+   const fetchComplaints = async () => {
+      try {
+         const user = JSON.parse(localStorage.getItem('user'));
+         if (user) {
+            const { _id, name } = user;
+            setUserName(name);
+            const response = await axios.get(`http://localhost:4000/api/comp/agent-complaints/${_id}`);
+            setAgentComplaintList(response.data.updatedComplaints || response.data);
+         } else {
+            navigate('/');
+         }
+      } catch (error) {
+         console.log("Error fetching complaints:", error);
       }
    };
 
+   // Initial data fetch and setting user on component mount
    useEffect(() => {
-      const getOrdinaryRecords = async () => {
-         try {
-            const response = await axios.get('http://localhost:4000/api/admin/agents')
-            .then((res)=>{
-               console.log("users",res.data)
-               setOrdinaryList(res.data.agent)
-            })
-            const ordinary = response.data;
-            setOrdinaryList(ordinary);
-         } catch (error) {
-            console.log(error);
-         }
-      };
-      getOrdinaryRecords();
-   }, [navigate]);
+      fetchComplaints();
+   }, []);
 
-   const deleteUser = async (userId) => {
+   // Function to mark complaint as completed and refresh the list
+   const handleStatusChange = async (complaintId) => {
       try {
-         const confirmed = window.confirm("Are you sure you want to delete the user?");
-         if (confirmed) {
-            await axios.delete(`http://localhost:4000/api/admin/delete-user/${userId}`);
-            setOrdinaryList(ordinaryList.filter((user) => user._id !== userId));
+         // Optimistically update state before the backend call
+         setAgentComplaintList((prevComplaints) =>
+            prevComplaints.map((complaint) =>
+               complaint.complaintId === complaintId ? { ...complaint, status: 'completed' } : complaint
+            )
+         );
+
+         // Send the update request to the backend
+         const response = await axios.post(`http://localhost:4000/api/comp/update-complaint/${complaintId}`, { status: 'completed' });
+
+         // Verify if the backend update was successful
+         if (response.status === 200) {
+            fetchComplaints();  // Re-fetch complaints to ensure the data is up-to-date
+         } else {
+            console.log("Failed to update complaint status on the server.");
+            alert("Error: Complaint status update failed. Please try again.");
          }
       } catch (error) {
-         console.log(error);
+         console.log("Error updating complaint status:", error);
+         alert("Error: Unable to mark complaint as completed.");
       }
    };
 
@@ -75,77 +71,93 @@ const Agent = () => {
       }));
    };
 
+   const LogOut = () => {
+      localStorage.removeItem('user');
+      navigate('/');
+   };
+
    return (
       <>
-         <div className="body" style={{ backgroundColor: '#f7f9fc', padding: '20px' }}>
+         <div className="body">
+            <Navbar className="text-white" bg="dark" expand="lg">
+               <Container fluid>
+                  <Navbar.Brand className="text-white">
+                     Hi Agent {userName}
+                  </Navbar.Brand>
+                  <Navbar.Toggle aria-controls="navbarScroll" />
+                  <Navbar.Collapse id="navbarScroll">
+                     <Nav className="text-white me-auto my-2 my-lg-0" style={{ maxHeight: '100px' }} navbarScroll>
+                        <NavLink style={{ textDecoration: 'none', color: 'white' }}>
+                           View Complaints
+                        </NavLink>
+                     </Nav>
+                     <Button onClick={LogOut} variant="outline-danger" className="ms-3">
+                        Log out
+                     </Button>
+                  </Navbar.Collapse>
+               </Container>
+            </Navbar>
 
-            <Container>
-               <Table striped bordered hover responsive style={{ backgroundColor: '#ffffff', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', borderRadius: '8px' }}>
-                  <thead>
-                     <tr style={{ backgroundColor: '#007bff', color: '#ffffff' }}>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Action</th>
-                     </tr>
-                  </thead>
-                  <tbody>
-                     {ordinaryList.length > 0 ? (
-                        ordinaryList.map((agent) => {
-                           const open = toggle[agent._id] || false;
+            <div className="container" style={{ display: 'flex', flexWrap: 'wrap', margin: '20px' }}>
+               {agentComplaintList && agentComplaintList.length > 0 ? (
+                  agentComplaintList.map((complaint, index) => {
+                     const open = toggle[complaint.complaintId] || false;
+                     return (
+                        <Card
+                           key={index}
+                           style={{
+                              width: '24rem', 
+                              margin: '15px', 
+                              boxShadow: '0 4px 8px rgba(0,0,0,0.1)'  // Increased width
+                           }}
+                        >
+                           <Card.Body>
+                              <Card.Title><b>Name:</b> {complaint.name}</Card.Title>
+                              <Card.Text><b>Address:</b> {complaint.address}</Card.Text>
+                              <Card.Text><b>City:</b> {complaint.city}</Card.Text>
+                              <Card.Text><b>State:</b> {complaint.state}</Card.Text>
+                              <Card.Text><b>Pincode:</b> {complaint.pincode}</Card.Text>
+                              <Card.Text><b>Comment:</b> {complaint.comment}</Card.Text>
+                              <Card.Text><b>Status:</b> {complaint.status}</Card.Text>
 
-                           return (
-                              <tr key={agent._id}>
-                                 <td>{agent.name}</td>
-                                 <td>{agent.email}</td>
-                                 <td>{agent.phone}</td>
-                                 <td>
-                                    <Button onClick={() => handleToggle(agent._id)}
-                                       aria-controls={`collapse-${agent._id}`}
-                                       aria-expanded={open}
-                                       className='mx-2'
-                                       variant="outline-warning"
-                                       style={{ borderRadius: '20px' }}>
-                                       Update
-                                    </Button>
-                                    <Collapse in={open}>
-                                       <Form onSubmit={() => handleSubmit(agent._id)} className='p-4' style={{ backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-                                          <Form.Group className="mb-3" controlId="formBasic">
-                                             <Form.Label>Full Name</Form.Label>
-                                             <Form.Control type="text" name='name' value={updateAgent.name} onChange={handleChange} placeholder="Enter name" />
-                                          </Form.Group>
-                                          <Form.Group className="mb-3" controlId="formBasicEmail">
-                                             <Form.Label>Email address</Form.Label>
-                                             <Form.Control type="email" name='email' value={updateAgent.email} onChange={handleChange} placeholder="Enter email" />
-                                          </Form.Group>
-
-                                          <Form.Group className="mb-3" controlId="formBasicTel">
-                                             <Form.Label>Phone</Form.Label>
-                                             <Form.Control type="tel" name='phone' value={updateAgent.phone} onChange={handleChange} placeholder="Enter Phone no." />
-                                          </Form.Group>
-
-                                          <Button size='sm' variant="outline-success" type="submit" style={{ borderRadius: '20px' }}>
-                                             Submit
-                                          </Button>
-                                       </Form>
-                                    </Collapse>
-                                    <Button onClick={() => deleteUser(agent._id)} className='mx-2' variant="outline-danger" style={{ borderRadius: '20px' }}>Delete</Button>
-                                 </td>
-                              </tr>
-                           );
-                        })
-                     ) : (
-                        <Alert variant="info" style={{ backgroundColor: '#eaf4ff', color: '#0d6efd', textAlign: 'center', fontSize: '1.1em' }}>
-                           <Alert.Heading>No Agents to show</Alert.Heading>
-                        </Alert>
-                     )}
-                  </tbody>
-               </Table>
-            </Container>
+                              {complaint.status !== 'completed' && (
+                                 <Button 
+                                    onClick={() => handleStatusChange(complaint.complaintId)} 
+                                    variant="primary" 
+                                    className="mb-2"
+                                 >
+                                    Mark as Completed
+                                 </Button>
+                              )}
+                              <Button
+                                 onClick={() => handleToggle(complaint.complaintId)}
+                                 aria-controls={`collapse-${complaint.complaintId}`}
+                                 aria-expanded={!open}
+                                 className="mx-3"
+                                 variant="primary"
+                              >
+                                 Message
+                              </Button>
+                              <Collapse in={!open}>
+                                 <div id={`collapse-${complaint.complaintId}`}>
+                                    <Card body style={{ width: '350px', marginTop: '12px' }}>
+                                       <ChatWindow key={complaint.complaintId} complaintId={complaint.complaintId} name={userName} />
+                                    </Card>
+                                 </div>
+                              </Collapse>
+                           </Card.Body>
+                        </Card>
+                     );
+                  })
+               ) : (
+                  <Alert variant="info" style={{ width: '100%', textAlign: 'center' }}>
+                     <Alert.Heading>No complaints to show</Alert.Heading>
+                  </Alert>
+               )}
+            </div>
          </div>
-         {/* <Footer /> */}
       </>
    );
 };
 
-export default Agent;
+export default AgentHome;

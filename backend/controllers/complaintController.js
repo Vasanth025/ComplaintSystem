@@ -72,7 +72,7 @@ const updateComplaint = async(req,res) =>
 
         const updatedComplaint = await Complaint.findByIdAndUpdate(compId,{status},{new:true})
 
-        const assignedComplaint = await Complaint.findOneAndUpdate({complaintId:compId},{status},{new:true})
+        const assignedComplaint = await AssignedComplaint.findOneAndUpdate({complaintId:compId},{status},{new:true})
 
         if(!updatedComplaint && !assignedComplaint)
             return res.status(500).json({error:"complaint not found"})

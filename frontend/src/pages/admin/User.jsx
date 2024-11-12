@@ -28,7 +28,7 @@ const User = () => {
          alert("At least 1 field needs to be filled.");
       } else {
          window.confirm("Are you sure you want to Update the user?");
-         axios.put(`http://localhost:4000/api/admin/update-user/${user_id}`, updateUser)
+         axios.post(`http://localhost:4000/api/admin/update-user/${user_id}`, updateUser)
             .then((res) => {
                alert(`User updated successfully`);
                JSON.stringify(res.data);

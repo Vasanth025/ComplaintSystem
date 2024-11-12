@@ -20,20 +20,24 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:4000/api/auth/login", credentials);
+            const response = await axios.post("http://localhost:4000/api/auth/login", credentials)
+            .then((res)=>
+            {
+                 // Store user data in localStorage
+                localStorage.setItem("user", JSON.stringify(res.data));
+
+                // Navigate to the correct page based on userType
+                if (res.data.userType === "Admin") {
+                    navigate("/admin-home");
+                } else if (res.data.userType === "Agent") {
+                    navigate("/agent-home");
+                } else {
+                    navigate("/user-home");
+            }
+            })
             const userData = response.data;
 
-            // Store user data in localStorage
-            localStorage.setItem("user", JSON.stringify(userData));
-
-            // Navigate to the correct page based on userType
-            if (userData.userType === "Admin") {
-                navigate("/admin-home");
-            } else if (userData.userType === "Agent") {
-                navigate("/agent-home");
-            } else {
-                navigate("/user-home");
-            }
+           
         } catch (err) {
             setError("Login failed. Please check your credentials.");
         }

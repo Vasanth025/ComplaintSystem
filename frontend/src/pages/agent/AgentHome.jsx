@@ -20,34 +20,37 @@ const AgentHome = () => {
    const [toggle, setToggle] = useState({});
    const [agentComplaintList, setAgentComplaintList] = useState([]);
 
-   useEffect(() => {
-      const getData = async () => {
-         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-               const { _id, name } = user;
-               setUserName(name);
-               const response = await axios.get(`http://localhost:4000/api/comp/agent-complaints/${_id}`);
-               setAgentComplaintList(response.data.updatedComplaints || response.data);  // Ensure the correct data structure is set
-            } else {
-               navigate('/');
-            }
-         } catch (error) {
-            console.log(error);
+   // Fetch complaints assigned to the agent
+   const fetchComplaints = async () => {
+      try {
+         const user = JSON.parse(localStorage.getItem('user'));
+         if (user) {
+            const { _id, name } = user;
+            setUserName(name);
+            const response = await axios.get(`http://localhost:4000/api/comp/agent-complaints/${_id}`)
+            .then((res)=>
+            {
+               setAgentComplaintList(res.data.updatedComplaints || res.data)
+            })
+            //setAgentComplaintList(response.data.updatedComplaints || response.data);
+         } else {
+            navigate('/');
          }
-      };
+      } catch (error) {
+         console.log(error);
+      }
+   };
 
-      getData();
-   }, [navigate]);
+   // Initial data fetch and setting user on component mount
+   useEffect(() => {
+      fetchComplaints();
+   }, []);
 
+   // Function to mark complaint as completed and refresh the list
    const handleStatusChange = async (complaintId) => {
       try {
          await axios.post(`http://localhost:4000/api/comp/update-complaint/${complaintId}`, { status: 'completed' });
-         setAgentComplaintList((prevComplaints) =>
-            prevComplaints.map((complaint) =>
-               complaint.complaintId === complaintId ? { ...complaint, status: 'completed' } : complaint
-            )
-         );
+         fetchComplaints(); // Fetch updated complaints list
       } catch (error) {
          console.log(error);
       }
