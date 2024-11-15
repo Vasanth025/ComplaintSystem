@@ -34,7 +34,7 @@ const Status = () => {
   return (
     <div style={{ padding: '20px', backgroundColor: '#f5f7fa' }}>
       {statusCompliants.length > 0 ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
           {statusCompliants.map((complaint, index) => {
             const open = toggle[complaint._id] || false;
             return (

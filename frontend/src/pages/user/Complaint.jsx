@@ -37,19 +37,18 @@ const Complaint = () => {
         e.preventDefault();
         try {
             const { _id } = JSON.parse(localStorage.getItem('user'));
-            console.log("useid",_id)
-            const res = await axios.post(`http://localhost:4000/api/comp/add-complaint/${_id}`, {
-                name:userComplaint.name,
-                address:userComplaint.address,
-                city:userComplaint.city,
-                state:userComplaint.state,
-                pincode:userComplaint.pincode,
-                status:userComplaint.status,
-                comment:userComplaint.comment
-
-            })
-            .then((res)=>console.log(res.data))
-            .catch((err)=>console.log(err))
+            console.log("userId:", _id);
+            await axios.post(`http://localhost:4000/api/comp/add-complaint/${_id}`, {
+                name: userComplaint.name,
+                address: userComplaint.address,
+                city: userComplaint.city,
+                state: userComplaint.state,
+                pincode: userComplaint.pincode,
+                status: userComplaint.status,
+                comment: userComplaint.comment
+            });
+            handleClear();  // Clear the form fields after a successful submission
+            alert("Complaint registered successfully!");
         } catch (err) {
             console.error("Error:", err);
             alert("Something went wrong!");

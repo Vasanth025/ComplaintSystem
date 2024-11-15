@@ -7,64 +7,103 @@ const ProfilePage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Fetch user data from localStorage
         const storedUser = JSON.parse(localStorage.getItem('user'));
         if (storedUser) {
             setUserData(storedUser);
         } else {
-            // Redirect to login if no user data is found
             navigate('/login');
         }
     }, [navigate]);
 
     return (
-        <Container fluid className="py-5" style={{ backgroundColor: '#f4f6f9' }}>
-            <Row className="justify-content-center">
-                <Col md={6}>
+        <Container
+            fluid
+            className="d-flex align-items-center justify-content-center"
+            style={{
+                minHeight: '100vh',
+                background: 'linear-gradient(135deg, #a8edea 10%, #fed6e3 100%)',
+                padding: '2rem 0',
+            }}
+        >
+            <Row className="justify-content-center w-100">
+                <Col md={8} lg={6}>
                     {userData ? (
-                        <Card className="shadow-sm rounded-lg" style={{ backgroundColor: '#ffffff' }}>
+                        <Card
+                            className="shadow-lg border-0"
+                            style={{
+                                borderRadius: '1.5rem',
+                                backgroundColor: '#ffffff',
+                                padding: '2rem',
+                            }}
+                        >
                             <Card.Body>
-                                <h2 className="text-center mb-4" style={{ color: '#333' }}>
-                                    Profile
-                                </h2>
-                                <div className="d-flex justify-content-center mb-4">
-                                    <div
-                                        className="rounded-circle d-flex justify-content-center align-items-center"
+                                <div className="text-center">
+                                    <h2
+                                        className="mb-4"
                                         style={{
-                                            width: '100px',
-                                            height: '100px',
-                                            backgroundColor: '#007bff',
+                                            fontWeight: 'bold',
+                                            color: '#333',
+                                            letterSpacing: '1px',
+                                        }}
+                                    >
+                                        My Profile
+                                    </h2>
+                                    <div
+                                        className="d-flex justify-content-center align-items-center mb-4"
+                                        style={{
+                                            width: '120px',
+                                            height: '120px',
+                                            borderRadius: '50%',
+                                            backgroundColor: '#6c63ff',
                                             color: '#fff',
                                             fontSize: '50px',
+                                            fontWeight: 'bold',
+                                            boxShadow: '0px 4px 15px rgba(108, 99, 255, 0.4)',
+                                            margin: '0 auto',
                                         }}
                                     >
                                         {userData.name.charAt(0)}
                                     </div>
                                 </div>
-                                <div className="mb-3">
-                                    <strong>Name: </strong>
-                                    <span>{userData.name}</span>
+                                <div className="text-center mb-3">
+                                    <h4
+                                        style={{
+                                            fontWeight: '700',
+                                            color: '#333',
+                                            fontSize: '1.5em',
+                                        }}
+                                    >
+                                        {userData.name}
+                                    </h4>
+                                    <p style={{ fontSize: '1em', color: '#777', marginBottom: '0.5rem' }}>
+                                        {userData.userType}
+                                    </p>
                                 </div>
-                                <div className="mb-3">
-                                    <strong>Email: </strong>
-                                    <span>{userData.email}</span>
-                                </div>
-                                <div className="mb-3">
-                                    <strong>Phone: </strong>
-                                    <span>{userData.phone}</span>
-                                </div>
-                                <div className="mb-3">
-                                    <strong>User Type: </strong>
-                                    <span>{userData.userType}</span>
+                                <hr style={{ borderTop: '1px solid #eaeaea' }} />
+                                <div className="profile-info mt-4" style={{ fontSize: '1.1em', lineHeight: '1.4' }}>
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <span style={{ fontWeight: '500', color: '#555' }}>📧 Email:</span>
+                                        <span style={{ color: '#333', marginLeft: '1rem' }}>{userData.email}</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <span style={{ fontWeight: '500', color: '#555' }}>📞 Phone:</span>
+                                        <span style={{ color: '#333', marginLeft: '1rem' }}>{userData.phone}</span>
+                                    </div>
+                                    <div className="d-flex justify-content-between align-items-center mb-3">
+                                        <span style={{ fontWeight: '500', color: '#555' }}>👤 User Type:</span>
+                                        <span style={{ color: '#333', marginLeft: '1rem' }}>{userData.userType}</span>
+                                    </div>
                                 </div>
                                 <div className="text-center mt-4">
                                     {/* <Button
-                                        variant="outline-primary"
+                                        variant="primary"
                                         onClick={() => navigate('/edit-profile')}
                                         style={{
-                                            borderRadius: '20px',
-                                            padding: '10px 30px',
-                                            fontSize: '16px',
+                                            borderRadius: '30px',
+                                            padding: '0.8rem 2.5rem',
+                                            fontSize: '1rem',
+                                            fontWeight: '500',
+                                            boxShadow: '0px 4px 12px rgba(108, 99, 255, 0.5)',
                                         }}
                                     >
                                         Edit Profile
