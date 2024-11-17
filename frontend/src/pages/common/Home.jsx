@@ -16,7 +16,7 @@ function Home() {
             {/* Navbar */}
             <Navbar expand="lg" className="custom-primary-bg">
                 <Container>
-                    <Navbar.Brand href="#home" className="text-white">
+                    <Navbar.Brand as={Link} to="/" className="text-white">
                         <span className="ms-2">Complaint Management</span>
                     </Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" />
